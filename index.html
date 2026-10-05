@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#060713" />
+  <meta name="description" content="Chase the neon horizon. A fast 3D arcade highway racer with nitro, near misses, and endless city nights." />
+  <title>SHUTOKO HIGHWAY</title>
+</head>
+<body>
+  <main id="game">
+    <canvas id="world" aria-label="3D neon racing highway"></canvas>
+    <div class="vignette"></div><div id="hit-flash"></div><div id="boost-wash"></div>
+    <header class="topbar">
+      <div class="brand">SHUTOKO HIGHWAY</div><span id="ambience" hidden></span>
+      <div class="top-actions"><button id="sound" class="icon-button" aria-label="Enable sound" title="Toggle sound">♪<span class="sound-slash">╱</span></button><button id="pause" class="icon-button" aria-label="Pause game" title="Pause (P)">Ⅱ</button></div>
+    </header>
+    <section class="score-hud" aria-label="Score">
+      <div><span class="eyebrow">RUN SCORE</span><strong id="score">000000</strong><span class="best">PERSONAL BEST <b id="best">000000</b></span></div>
+      <div class="multiplier"><strong id="multiplier">1<span>×</span></strong><span>COMBO</span><div class="combo-track"><i id="combo-fill"></i></div></div>
+    <div id="oncoming-status" data-active="false" aria-hidden="true"></div>
+    </section>
+    <section id="menu" class="menu">
+      <h1>SHUTOKO<br><em>HIGHWAY</em></h1>
+      <button id="start" class="primary-button">PLAY <span>↗</span></button>
+      <button id="how-menu" class="text-button">HOW TO PLAY</button>
+    </section>
+    <section id="help" class="dialog" hidden aria-labelledby="help-title">
+      <h2 id="help-title">HOW TO PLAY</h2>
+      <dl><dt>STEER</dt><dd id="help-steer">A / D or ← / →</dd><dt>BRAKE</dt><dd id="help-brake">Hold S or ↓</dd><dt>NITRO</dt><dd id="help-nitro">Hold Space. Full tank adds shield + magnet.</dd></dl>
+      <p>Full nitro runs for 7 seconds. Press again or brake to cancel. Nitro orbs collected during full boost are banked.</p>
+      <p>Left lanes carry oncoming traffic and earn ×2. Close passes build your combo. Repair orbs restore shield.</p>
+      <button id="replay-tutorial" class="primary-button">PLAY TUTORIAL</button><button id="close-help" class="text-button">BACK</button>
+    </section>
+    <div id="ignition-status" hidden role="status">STARTING ENGINE</div>
+    <div id="tutorial" hidden><span id="tutorial-step"></span><strong id="tutorial-prompt"></strong><button id="skip-tutorial" class="text-button">SKIP</button></div>
+    <section id="dialog" class="dialog" hidden aria-labelledby="dialog-title">
+      <span id="dialog-kicker" class="eyebrow">TAKE A BREATHER</span><h2 id="dialog-title">RUN PAUSED</h2><p id="dialog-copy">The city can wait.</p>
+      <div id="results" class="results" hidden><div><span>FINAL SCORE</span><strong id="final-score">0</strong></div><div><span>NEAR MISSES</span><strong id="final-near">0</strong></div><div><span>DISTANCE</span><strong id="final-distance">0</strong></div></div>
+      <button id="how-pause" class="text-button">HOW TO PLAY</button><button id="resume" class="primary-button">RESUME <span>↗</span></button><button id="restart" class="text-button">RETRY ↗</button>
+    </section>
+    <footer class="dashboard">
+      <section class="shield-panel"><div class="meter-heading"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6Z"/></svg> SHIELD</span><b><span id="shield">100</span><small>%</small></b></div><div class="shield-track"><i id="shield-fill"></i></div><small class="meter-caption">STAY SHARP. STAY IN ONE PIECE.</small></section>
+      <section class="speed-panel"><span id="speed">000</span><div>KM/H<small id="distance">0.00 KM</small><small id="drive-status">CRUISE</small></div></section>
+      <button type="button" data-control="boost" class="nitro-panel" id="nitro-panel" data-state="charging" aria-label="Nitro charging">
+        <div class="meter-heading"><span>ϟ NITRO <strong id="nitro-state">CHARGING</strong></span><b><span id="nitro-count">0</span><small>%</small></b></div>
+        <div id="nitro-meter" role="progressbar" aria-label="Nitro charge" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="nitro-fill"></i><i class="nitro-sweep"></i></div>
+        <small id="nitro-reserve" hidden></small>
+        <span class="nitro-particles" aria-hidden="true"></span>
+        <small class="meter-caption" id="nitro-hint">HOLD SPACE · FULL IN 30s</small>
+      </button>
+    </footer>
+    <nav id="touch-controls" aria-label="Driving controls"><div class="steering-buttons"><button data-control="left" aria-label="Steer left">‹</button><button data-control="right" aria-label="Steer right">›</button></div><div class="action-buttons"><button data-control="brake" id="touch-brake" aria-label="Hold to brake"><span class="brake-icon">▥</span><span>BRAKE</span></button><button data-control="boost" id="touch-boost" aria-label="Hold nitro; at full fuel press for automatic boost">ϟ <span>NITRO</span></button></div></nav>
+    <div id="live-message" class="sr-only" aria-live="polite"></div>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+@font-face{font-family:Rajdhani;src:url('/fonts/Rajdhani-SemiBold.ttf') format('truetype');font-style:normal;font-weight:600;font-display:swap}
+:root{
+ --font-display:NeonArcade,'Arial Narrow',sans-serif;
+ --font-ui:Rajdhani,Arial,sans-serif;
+ --weight-ui:600;--weight-display:400;
+ --type-micro:11px;--type-label:13px;--type-copy:16px;--type-button:17px;
+ --type-title:clamp(48px,7vw,96px);--type-dialog:40px;
+ --type-score:42px;--type-speed:80px;--type-number:29px;
+ --type-popup:32px;--type-popup-number:44px;--type-popup-detail:13px;
+ --arcade-shadow:2px 2px 0 #e72e88,-1px -1px 0 #092531,0 3px 6px #000;
+ font-family:var(--font-ui);font-weight:var(--weight-ui);
+}
+button,kbd{font-family:var(--font-ui);font-weight:var(--weight-ui)}
+.brand,.brand-mark,.sector>span,.menu h1,.dialog h2,.results strong,.score-hud strong,.speed-panel>span,.meter-heading b,#car-feedback{font-family:var(--font-display);font-weight:var(--weight-display)}
+.brand{font-size:26px;letter-spacing:4px}.brand-sub{font-family:var(--font-ui);font-size:var(--type-micro)}
+.menu h1{font-size:var(--type-title);line-height:.95;letter-spacing:1px}.menu h1 em{font-weight:var(--weight-display)}
+.dialog h2{font-size:var(--type-dialog);letter-spacing:1px}
+.menu p,.dialog p,.nitro-instructions{font-family:var(--font-ui);font-size:var(--type-copy);font-weight:var(--weight-ui);line-height:1.35}
+.route,.eyebrow,.best,.multiplier>span,.kicker,.menu-controls,.touch-instructions,.pickup-guide,.meter-heading,.meter-caption,.speed-panel>div,.speed-panel small,.results span,.text-button,.bottom-line,kbd,#touch-controls button span{font-family:var(--font-ui);font-weight:var(--weight-ui);font-size:var(--type-label);letter-spacing:.8px}
+.brand-sub,.best,.bottom-line,.meter-caption{font-size:var(--type-micro)}
+.primary-button,.text-button{font-family:var(--font-ui);font-weight:var(--weight-ui);font-size:var(--type-button);letter-spacing:1.2px}
+.score-hud strong{font-size:var(--type-score);font-variant-numeric:tabular-nums;letter-spacing:1px}
+.speed-panel>span{font-size:var(--type-speed);letter-spacing:0;font-variant-numeric:tabular-nums}
+.meter-heading b,.results strong{font-size:var(--type-number);font-variant-numeric:tabular-nums}
+#car-feedback{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:3px 9px;white-space:normal;text-align:center;font-size:var(--type-popup);line-height:1;letter-spacing:.6px;text-shadow:var(--arcade-shadow)}
+#car-feedback>span{max-width:100%;overflow-wrap:break-word}
+#car-feedback strong{font-family:var(--font-display);font-size:var(--type-popup-number);font-weight:var(--weight-display)}
+#car-feedback strong:empty,#car-feedback small:empty{display:none}
+#car-feedback small{flex-basis:100%;font:var(--weight-ui) var(--type-popup-detail)/1.1 var(--font-ui);font-style:normal;color:#e6ffff;text-shadow:0 2px 3px #000,1px 0 #000;letter-spacing:.3px}
+#car-feedback[data-kind=hit],#car-feedback[data-kind=health]{color:#ff86b2}
+#car-feedback[data-kind=respawn],#car-feedback[data-kind=boost]{color:#8effed}
+@media(max-width:600px){:root{--type-micro:10px;--type-label:12px;--type-copy:14px;--type-button:16px;--type-title:clamp(44px,12vw,68px);--type-score:34px;--type-speed:58px;--type-number:25px;--type-popup:27px;--type-popup-number:38px;--type-popup-detail:12px}.brand{font-size:21px}.menu h1{margin:15px 0}.menu p{margin-bottom:18px}.menu-controls{gap:12px}}
+@media(max-height:620px){:root{--type-title:44px;--type-copy:12px;--type-label:11px;--type-micro:10px;--type-popup:24px;--type-popup-number:32px;--type-popup-detail:11px;--type-button:14px}.menu h1{margin:10px 0}.menu p{margin-bottom:12px}}
+@font-face{font-family:Rajdhani;src:url('/fonts/Rajdhani-Regular.ttf') format('truetype');font-style:normal;font-weight:400;font-display:swap}
+:root{--font-pickup:Tomorrow,var(--font-ui);--type-pickup:23px;--weight-pickup:600}
+#pickup-feedback{position:absolute;inset:0;pointer-events:none;z-index:4}
+.pickup-gain{position:absolute;transform:translate(-50%,-100%) scaleX(.88);font:italic var(--weight-pickup) var(--type-pickup)/1.1 var(--font-pickup);letter-spacing:-.5px;color:#fff471;text-shadow:1px 1px 0 #08777c,0 2px 2px #000,-1px -1px 1px #07121c;white-space:nowrap}
+.pickup-gain[data-kind=repair]{color:#ffc6e2}.pickup-gain[data-kind=nitro]{color:#b8fff5}
+#oncoming-status{position:absolute;left:18px;top:36%;padding:6px 8px;border-left:2px solid #ffc878;background:#100e20b8;color:#ffdb9c;font:600 13px/1 var(--font-ui);letter-spacing:1px;pointer-events:none}
+@media(max-width:600px){:root{--type-pickup:20px}#oncoming-status{left:10px;top:26%;font-size:11px;padding:5px 6px}}
+
+@font-face{font-family:Tomorrow;src:url('/fonts/Tomorrow-SemiBoldItalic.ttf') format('truetype');font-style:italic;font-weight:600;font-display:swap}
+.pickup-gain::before{content:"";position:absolute;left:-7px;top:4px;width:3px;height:9px;background:currentColor;clip-path:polygon(45% 0,100% 0,55% 100%,0 100%)}
+#car-feedback[data-kind=oncoming]{padding-bottom:20px}
+/* A stable instrument hierarchy; motion is reserved for event entrances. */
+#oncoming-status{top:225px;right:44px;left:auto;opacity:0;visibility:hidden;transform:translateY(-3px);transition:opacity .22s ease,transform .22s ease,visibility 0s .22s;font-size:13px;background:#0b1125ed;border-left-color:#ffe091;letter-spacing:.6px}
+#oncoming-status[data-active=true]{opacity:1;visibility:visible;transform:translateY(0);transition-delay:0s}
+.nitro-panel[data-state=ready]{animation:nitro-ready-glow 2.4s ease-in-out infinite alternate}
+#nitro-fill::before{animation:none;opacity:0}
+.nitro-panel[data-state=active] #nitro-fill::before{animation:nitro-charge-flow 1.2s linear infinite;opacity:.5}
+.shield-panel>.meter-caption{display:none}
+.meter-heading{margin-bottom:8px}.meter-heading b{color:#eafffb}
+.speed-panel>span{color:#fff;text-shadow:0 2px 8px #020712;line-height:.95}
+.best{opacity:.65}.bottom-line{opacity:.55}
+@media(min-width:901px){.dashboard{left:max(43px,calc((100vw - 1280px)/2));right:max(43px,calc((100vw - 1280px)/2));bottom:54px}.score-hud{right:max(44px,calc((100vw - 1280px)/2))}#oncoming-status{right:max(44px,calc((100vw - 1280px)/2))}}
+@media(max-width:600px){#oncoming-status{top:166px;left:22px;right:auto;font-size:11px;padding:6px 8px}.meter-heading{letter-spacing:.5px}.nitro-panel{box-shadow:none}.speed-panel>span{font-size:62px}}
+@media(max-height:620px) and (min-width:601px){#oncoming-status{top:164px;right:22px;font-size:11px}}
+@media(prefers-reduced-motion:reduce){#oncoming-status{transform:none;transition:none}.nitro-panel[data-state=ready],.nitro-panel[data-state=active] #nitro-fill::before{animation:none}}
+
+@media(pointer:coarse) and (min-width:901px){.dashboard{bottom:106px}}
+
+.score-hud #oncoming-status{top:calc(100% + 12px);right:0;left:auto}
+@media(max-width:600px){.score-hud #oncoming-status{left:0;right:auto}}

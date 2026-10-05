@@ -1,0 +1,142 @@
+[
+  {
+    "seed": 1,
+    "time": 240.00833333327938,
+    "distance": 14173.605590010458,
+    "shield": 100,
+    "respawns": 1,
+    "nearMisses": 2,
+    "bins": {
+      "0": {
+        "cars": 4.9,
+        "speed": 195.9,
+        "brakingPercent": 11
+      },
+      "2": {
+        "cars": 7.8,
+        "speed": 211.8,
+        "brakingPercent": 9
+      },
+      "4": {
+        "cars": 8.3,
+        "speed": 238.6,
+        "brakingPercent": 7
+      },
+      "6": {
+        "cars": 10.6,
+        "speed": 178.3,
+        "brakingPercent": 28
+      },
+      "8": {
+        "cars": 11.8,
+        "speed": 224,
+        "brakingPercent": 15
+      },
+      "10": {
+        "cars": 11.7,
+        "speed": 263.2,
+        "brakingPercent": 6
+      },
+      "12": {
+        "cars": 10.8,
+        "speed": 213.3,
+        "brakingPercent": 19
+      },
+      "14": {
+        "cars": 10.8,
+        "speed": 126.1,
+        "brakingPercent": 48
+      }
+    }
+  },
+  {
+    "seed": 2,
+    "time": 240.00833333327938,
+    "distance": 13762.856944144594,
+    "shield": 91,
+    "respawns": 1,
+    "nearMisses": 3,
+    "bins": {
+      "0": {
+        "cars": 5.2,
+        "speed": 209.5,
+        "brakingPercent": 6
+      },
+      "2": {
+        "cars": 8.3,
+        "speed": 180.4,
+        "brakingPercent": 20
+      },
+      "4": {
+        "cars": 8.1,
+        "speed": 214.7,
+        "brakingPercent": 15
+      },
+      "6": {
+        "cars": 9.9,
+        "speed": 204.5,
+        "brakingPercent": 20
+      },
+      "8": {
+        "cars": 11.8,
+        "speed": 228.5,
+        "brakingPercent": 16
+      },
+      "10": {
+        "cars": 10.3,
+        "speed": 191.7,
+        "brakingPercent": 25
+      },
+      "12": {
+        "cars": 8.5,
+        "speed": 231.8,
+        "brakingPercent": 14
+      }
+    }
+  },
+  {
+    "seed": 3,
+    "time": 240.00833333327938,
+    "distance": 13134.202688828478,
+    "shield": 82,
+    "respawns": 2,
+    "nearMisses": 0,
+    "bins": {
+      "0": {
+        "cars": 6.4,
+        "speed": 211.4,
+        "brakingPercent": 5
+      },
+      "2": {
+        "cars": 8.1,
+        "speed": 181.5,
+        "brakingPercent": 20
+      },
+      "4": {
+        "cars": 8.3,
+        "speed": 176.9,
+        "brakingPercent": 25
+      },
+      "6": {
+        "cars": 7.5,
+        "speed": 233.3,
+        "brakingPercent": 13
+      },
+      "8": {
+        "cars": 8.9,
+        "speed": 180.1,
+        "brakingPercent": 29
+      },
+      "10": {
+        "cars": 8.2,
+        "speed": 190.2,
+        "brakingPercent": 25
+      },
+      "12": {
+        "cars": 10,
+        "speed": 249.4,
+        "brakingPercent": 10
+      }
+    }
+  }
+]

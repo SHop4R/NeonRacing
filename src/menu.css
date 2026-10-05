@@ -1,0 +1,27 @@
+body.ready .dashboard,body.ready .score-hud,body.intro .dashboard,body.intro .score-hud,body.intro #touch-controls{display:none}
+body.ready .brand{visibility:hidden}
+body.ready #pause,body.intro #pause{visibility:hidden}
+.menu{top:22%;left:6%;right:auto;width:330px;max-width:40vw;transform:none}
+.menu h1{font-size:clamp(54px,6vw,88px);line-height:.94;margin:0 0 34px;letter-spacing:1px;text-shadow:0 3px 14px #020817}
+.menu .primary-button{width:100%;min-width:0;max-width:none;font-size:24px;padding:17px 24px}
+.menu .text-button{display:block;text-align:center;width:100%;font-size:17px;color:#e0f9ff;border:1px solid #79fff449;padding:13px 20px;background:#071221b0;margin-top:12px}
+#help{z-index:12;max-height:90vh;overflow:auto;text-align:left}
+#help h2{margin-top:0}#help dl{display:grid;grid-template-columns:65px 1fr;gap:8px;margin:12px 0 18px;font:600 16px/1.3 var(--font-ui)}#help dt{color:#82fff1}#help dd{margin:0}#help p{font-size:15px;line-height:1.4}#help .text-button{display:block;margin:auto;padding-top:14px}
+#how-pause{display:block;margin:12px auto 20px}#nitro-reserve{display:block;font:600 11px/1.2 var(--font-ui);color:#ffe58f;letter-spacing:.4px;margin-top:8px;border-top:1px solid #ffe58f40;padding-top:5px}
+#ignition-status{position:absolute;bottom:8%;left:50%;transform:translateX(-50%);font:22px var(--font-display);color:#bbfff4;letter-spacing:3px;text-shadow:0 2px 4px #000;pointer-events:none}
+#tutorial{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:min(430px,90vw);padding:12px 16px;background:#07101fe8;border-left:2px solid #84fff1;z-index:6;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px}
+#tutorial-step{font:600 12px var(--font-ui);color:#8dacae}#tutorial-prompt{font:600 17px/1.15 var(--font-ui);color:#efffff}#tutorial .text-button{font-size:12px;margin:0;padding:8px;color:#b2c9d4}
+@media(max-width:600px){.menu{left:24px;right:24px;top:auto;bottom:28px;width:auto;max-width:none}.menu h1{font-size:50px;margin-bottom:20px}.menu .primary-button{padding:13px 20px;font-size:22px}.menu .text-button{padding:10px;margin-top:8px}.topbar .brand{font-size:18px;letter-spacing:2px}#help{padding:22px}#tutorial{top:25%;padding:10px;gap:8px}#tutorial-prompt{font-size:15px}#nitro-reserve{font-size:10px}}
+@media(max-height:620px) and (min-width:601px){.menu{top:17%;left:5%;max-width:32vw}.menu h1{font-size:48px;margin-bottom:18px}.menu .primary-button{padding:12px 20px}.menu .text-button{padding:8px}#tutorial{top:12%}}
+@media(prefers-reduced-motion:reduce){#ignition-status{letter-spacing:1px}}
+
+/* Dialogs must paint above the instruments, including short landscape screens. */
+.dialog{z-index:10;max-height:calc(100dvh - 32px);overflow:auto}
+@media(max-height:620px) and (min-width:601px){
+ #help{width:min(560px,90vw);padding:18px}
+ #help h2{margin-bottom:12px}#help dl{margin:10px 0;gap:5px}
+ #help p{margin:10px 0;font-size:14px;line-height:1.3}
+ #help .primary-button{padding:10px 20px}#help .text-button{padding-top:10px}
+}
+/* A solid scrim avoids displaced backdrop-filter tiles over the WebGL canvas. */
+.dialog{backdrop-filter:none;background:#08101df5}

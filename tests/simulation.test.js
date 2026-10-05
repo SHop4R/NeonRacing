@@ -1,0 +1,15 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { createGame, startGame, stepGame, activateBoost, collectPickup } from '../src/simulation.js';
+const run = () => { const s=createGame(()=>0.5); startGame(s); s.x=0; s.spawnTimer=1000; return s; };
+const tick=(s,n=1,input={steer:0})=>{for(let i=0;i<n;i++)stepGame(s,input,1/60);};
+test('collision removes 34 shield once and resets multiplier',()=>{const s=run();s.combo=4;s.entities.push({id:1,kind:'traffic',x:0,z:1,speed:0});tick(s);assert.equal(s.shield,66);assert.equal(s.combo,1);tick(s);assert.equal(s.shield,66);});
+test('repair and nitro respect caps',()=>{const s=run();s.shield=90;collectPickup(s,'repair');assert.equal(s.shield,100);for(let i=0;i<5;i++)collectPickup(s,'nitro');assert.equal(s.nitro,1);});
+test('near miss awards once; invincible contact never awards',()=>{const s=run();s.entities.push({id:1,kind:'traffic',x:1.9,z:-2.5,speed:0});tick(s);assert.equal(s.nearMisses,1);tick(s);assert.equal(s.nearMisses,1);const t=run();collectPickup(t,'nitro');activateBoost(t);t.entities.push({id:2,kind:'traffic',x:0,z:0,speed:0});tick(t,10);assert.equal(t.nearMisses,0);});
+test('nitro magnet attracts distant pickups',()=>{const s=run();collectPickup(s,'nitro');activateBoost(s);s.entities.push({id:1,kind:'energy',x:3,z:8,speed:0});tick(s,20);assert.equal(s.pickups,2);});
+test('steering stays on road and restart resets run',()=>{const s=run();tick(s,300,{steer:1});assert.ok(s.x<6.2);s.shield=0;s.mode='over';startGame(s);assert.equal(s.shield,100);assert.equal(s.x,1.5);assert.equal(s.score,0);assert.equal(s.nitro,0);});
+test('paused games freeze',()=>{const s=run();s.mode='paused';tick(s,60);assert.equal(s.time,0);});
+test('clean driving grows capped multiplier',()=>{const s=run();tick(s,9000);assert.equal(s.combo,5);});
+test('third separated hit ends run',()=>{const s=run();for(let i=0;i<3;i++){s.recovery=0;s.entities=[{id:i,kind:'traffic',x:s.x,z:1,speed:0}];tick(s);tick(s,52);}assert.equal(s.mode,'over');assert.equal(s.shield,0);});
+test('near miss waits until rear clears the entire collision window',()=>{const s=run();s.vx=10.5;s.entities=[{id:1,kind:'traffic',x:1.4,z:-1.65,speed:20}];for(let i=0;i<4;i++)stepGame(s,{steer:1},1/120);assert.equal(s.shield,66);assert.equal(s.nearMisses,0);assert.ok(s.score<10);});
+test('substantial body overlap still registers a collision',()=>{const s=run();s.entities=[{id:1,kind:'traffic',x:1.2,z:1,speed:0}];tick(s);assert.equal(s.shield,66);});
