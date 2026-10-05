@@ -50,12 +50,14 @@ function setMode(mode) {
 function start(){if(!scene)return;tutorial.finish();$('tutorial').hidden=true;$('help').hidden=true;input.clear();oncomingHud.reset();pickupFeedback.reset();scoreFeedback.reset();nitroFeedback.reset();startGame(game);setMode('running');$('start').blur();$('restart').blur();hitUntil=0;accumulator=0;$('nitro-panel').getAnimations({subtree:true}).forEach(a=>a.cancel());$('live-message').textContent='Run started. Nitro charging.';}
 function beginPlay(forceTutorial=false){
  if(!scene||game.mode==='intro')return;
- void audio.unlock().then(updateSoundButton);
+ const audioReady=audio.unlock();
  const retry=game.mode==='over'||game.mode==='paused';wantsTutorial=forceTutorial||!tutorialDone();
  appFocused=true;introInterrupted=false;input.clear();$('help').hidden=true;$('tutorial').hidden=true;tutorial.finish();
  introQuick=retry;introElapsed=0;
  startGame(game);Object.assign(game,launchFrame(0,introQuick));
- scene.beginIntro();setMode('intro');audio.ignition(introQuick);
+ scene.beginIntro();setMode('intro');
+ // Only the current ignition may start after resuming; never replay stale sounds.
+ void audioReady.then(ready=>{if(ready&&game.mode==='intro'&&introElapsed<.15&&!introInterrupted)audio.ignition(introQuick);});
 }
 function finishTutorial(){tutorial.finish();saveTutorial();start();}
 function openHelp(){
@@ -79,6 +81,11 @@ $('how-menu').addEventListener('click',openHelp);$('how-pause').addEventListener
 $('close-help').addEventListener('click',closeHelp);
 $('replay-tutorial').addEventListener('click',()=>beginPlay(true));$('skip-tutorial').addEventListener('click',finishTutorial);
 function updateSoundButton(on){$('sound').setAttribute('aria-label',on?'Mute sound':'Enable sound');$('sound').querySelector('span').hidden=on;}
+updateSoundButton(audio.enabled);
+// User gestures unlock the browser without changing the saved sound preference.
+window.addEventListener('pointerdown',()=>{void audio.unlock();},{capture:true});
+window.addEventListener('pointerup',()=>{void audio.unlock();},{capture:true});
+window.addEventListener('keydown',e=>{if(!e.repeat)void audio.unlock();},{capture:true});
 $('sound').addEventListener('click',async()=>{updateSoundButton(await audio.toggle());$('sound').blur();});
 try{scene=createScene($('world'));}catch(error){$('menu').hidden=true;$('dialog').hidden=false;$('dialog-title').textContent='3D UNAVAILABLE';$('dialog-copy').textContent='This browser could not start WebGL. Try a browser with hardware acceleration enabled.';$('dialog-kicker').textContent='RENDERER UNAVAILABLE';$('resume').hidden=true;$('restart').hidden=true;console.error(error);}
 setMode('ready');

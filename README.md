@@ -256,7 +256,7 @@ The day/night ambience completes a **90-second gameplay-time cycle**. It is visu
 
 **PLAY** is the primary menu action. **HOW TO PLAY** stays available before a run and from pause/game over. Help can be closed with **BACK** or **Escape**; keyboard focus returns to its opening button. Closing help from pause does not resume driving automatically.
 
-The menu opens automatically and silently. PLAY unlocks synthesized starter, engine, pickup, boost, near-miss, and impact sounds; the music-note button enables or mutes them. An explicit mute is respected on subsequent starts. There is no music soundtrack or separate volume mixer. Sound preference is not saved across page reloads.
+Sound is enabled by default. The menu opens automatically and silently; the first keyboard or pointer interaction (including PLAY) unlocks browser audio. The music-note button mutes or enables synthesized starter, engine, pickup, boost, near-miss, and impact sounds. Mute and saved volume preferences survive reloads. Browser autoplay blocking never changes the sound preference, and missed sound effects are not replayed. There is no music soundtrack or separate volume mixer.
 
 The game respects the browser/OS **reduced-motion** preference: cinematic motion and body movement are reduced, shield-expiry feedback becomes steady, and decorative HUD motion is reduced. This does not stop road motion or change gameplay rules. Menus support keyboard navigation, controls have accessible labels, and some events have live announcements; the visual driving game is not fully playable nonvisually.
 

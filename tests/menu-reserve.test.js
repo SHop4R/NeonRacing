@@ -40,8 +40,8 @@ import {createAudio} from '../src/audio.js';
 test('muted ignition is silent; enabled starter schedules catch and shuts down on interruption',async()=>{
  const old=globalThis.AudioContext,oscillators=[];
  const param=()=>({value:0,setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){},setTargetAtTime(){}});
- globalThis.AudioContext=class {constructor(){this.currentTime=0;this.destination={};}async resume(){}createGain(){return {gain:param(),connect(){},disconnect(){}};}createBiquadFilter(){return {frequency:param(),connect(){}};}createOscillator(){const o={frequency:param(),connect(){},disconnect(){},start(){this.started=true;},stop(t){this.stopAt=t;}};oscillators.push(o);return o;}};
- try{const audio=createAudio();audio.ignition();assert.equal(oscillators.length,0);await audio.toggle();audio.ignition();assert.equal(oscillators.length,2);assert.equal(oscillators[1].stopAt,1.35);audio.stopIgnition();assert.equal(oscillators[1].stopAt,undefined);await audio.toggle();audio.ignition();assert.equal(oscillators.length,2);}finally{globalThis.AudioContext=old;}
+ globalThis.AudioContext=class {constructor(){this.currentTime=0;this.destination={};this.state="running";}async resume(){}createGain(){return {gain:param(),connect(){},disconnect(){}};}createBiquadFilter(){return {frequency:param(),connect(){}};}createOscillator(){const o={frequency:param(),connect(){},disconnect(){},start(){this.started=true;},stop(t){this.stopAt=t;}};oscillators.push(o);return o;}};
+ try{const audio=createAudio();audio.ignition();assert.equal(oscillators.length,0);await audio.unlock();audio.ignition();assert.equal(oscillators.length,2);assert.equal(oscillators[1].stopAt,1.35);audio.stopIgnition();assert.equal(oscillators[1].stopAt,undefined);await audio.toggle();audio.ignition();assert.equal(oscillators.length,2);}finally{globalThis.AudioContext=old;}
 });
 import {launchFrame,LAUNCH} from '../src/launch.js';
 import {DRIVING} from '../src/tuning.js';
