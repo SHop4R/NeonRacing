@@ -2,6 +2,7 @@
 const markup=await (await fetch('/index.html')).text();
 const template=new DOMParser().parseFromString(markup,'text/html');document.body.replaceChildren(template.querySelector('main'));
 const {game,input,scene,start,pause}=await import('../src/main.js');
+document.getElementById('game').inert=false;
 const {collectPickup}=await import('../src/simulation.js');
 const {makePickup}=await import('../src/pickups.js');
 const {makeTraffic,LANES}=await import('../src/traffic.js');

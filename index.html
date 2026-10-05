@@ -1,14 +1,21 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-startup="loading">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#060713" />
   <meta name="description" content="Chase the neon horizon. A fast 3D arcade highway racer with nitro, near misses, and endless city nights." />
   <title>SHUTOKO HIGHWAY</title>
+  <style>
+    html,body{margin:0;background:#060713;color:#eaf5ff}
+    html[data-startup] #game{visibility:hidden}
+    #loading{position:fixed;inset:0;display:grid;place-items:center;background:#060713;font:600 16px Arial,sans-serif;letter-spacing:2px}
+    html:not([data-startup]) #loading{display:none}
+  </style>
 </head>
 <body>
-  <main id="game">
+  <div id="loading" role="status">LOADING</div>
+  <main id="game" inert>
     <canvas id="world" aria-label="3D neon racing highway"></canvas>
     <div class="vignette"></div><div id="hit-flash"></div><div id="boost-wash"></div>
     <header class="topbar">
@@ -53,6 +60,6 @@
     <nav id="touch-controls" aria-label="Driving controls"><div class="steering-buttons"><button data-control="left" aria-label="Steer left">‹</button><button data-control="right" aria-label="Steer right">›</button></div><div class="action-buttons"><button data-control="brake" id="touch-brake" aria-label="Hold to brake"><span class="brake-icon">▥</span><span>BRAKE</span></button><button data-control="boost" id="touch-boost" aria-label="Hold nitro; at full fuel press for automatic boost">ϟ <span>NITRO</span></button></div></nav>
     <div id="live-message" class="sr-only" aria-live="polite"></div>
   </main>
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="/src/startup.js"></script>
 </body>
 </html>

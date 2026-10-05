@@ -256,7 +256,7 @@ The day/night ambience completes a **90-second gameplay-time cycle**. It is visu
 
 **PLAY** is the primary menu action. **HOW TO PLAY** stays available before a run and from pause/game over. Help can be closed with **BACK** or **Escape**; keyboard focus returns to its opening button. Closing help from pause does not resume driving automatically.
 
-Sound starts muted on page load. The music-note button enables or mutes synthesized starter, engine, pickup, boost, near-miss, and impact sounds. There is no music soundtrack or separate volume mixer. Sound preference is not saved across page reloads.
+The menu opens automatically and silently. PLAY unlocks synthesized starter, engine, pickup, boost, near-miss, and impact sounds; the music-note button enables or mutes them. An explicit mute is respected on subsequent starts. There is no music soundtrack or separate volume mixer. Sound preference is not saved across page reloads.
 
 The game respects the browser/OS **reduced-motion** preference: cinematic motion and body movement are reduced, shield-expiry feedback becomes steady, and decorative HUD motion is reduced. This does not stop road motion or change gameplay rules. Menus support keyboard navigation, controls have accessible labels, and some events have live announcements; the visual driving game is not fully playable nonvisually.
 
@@ -301,7 +301,7 @@ Publish the contents of `dist/` with a static web host. The current configuratio
 | Blank scene or “3D UNAVAILABLE” | Use a WebGL2-capable browser with hardware acceleration. Update the browser/GPU driver if needed. |
 | Page fails when opened from disk | Run Vite and use its HTTP URL instead of `file://`. |
 | Phone cannot reach the local server | Check the computer's local IP, printed port, shared network, and firewall. `localhost` on the phone points to the phone itself. |
-| No sound | Sound starts muted. Click the note button and check browser/device audio settings. |
+| No sound | PLAY enables sound unless explicitly muted. Check the note button and browser/device audio settings. |
 | Nitro will not engage | Check fuel, braking, crash state, and whether you need to release a depleted/cancelled hold before pressing again. |
 | Nitro orb did not lengthen the shield | Intended: automatic-boost pickups bank the next refill. Current shield/magnet never extend beyond the original window. |
 | Game paused after changing tabs | Intended focus-loss protection. Return and choose Resume. |
@@ -382,7 +382,7 @@ These rules are implemented in [`collision-bounds.js`](src/collision-bounds.js),
 | `src/audio.js` | Synthesized engine, ignition, and event sounds |
 | `src/style.css`, `src/typography.css`, `src/menu.css` | Layout, fonts, feedback styling, responsive dialogs |
 | `tests/` | Automated tests and browser fixtures |
-| `docs/` | Screenshots, design history, and verification notes |
+| `docs/` | Current screenshots, original design, and final review evidence |
 
 ## Current status and limitations
 
@@ -392,7 +392,7 @@ Those observations are not a guarantee of performance on every device or proof t
 
 The game is ready to share as a **desktop-first playable beta**. Remaining limitations include repeated straight-road scenery/encounters, small distant traffic in portrait framing, relatively simple traffic/environment art, and no audio listening assessment in the recorded review. No additional feature is required to try the current game.
 
-See the [full assessment and verification evidence](docs/review/notes.md). Older documents in `docs/` describe earlier iterations—including former player cars and superseded nitro rules—and should be read as history. This guide describes the current implementation; source remains authoritative when tuning changes.
+See the [full assessment and verification evidence](docs/review/notes.md). The original design in `docs/game-design.md` is historical; superseded iteration notes and screenshots have been removed. This guide describes the current implementation; source remains authoritative when tuning changes.
 
 ## Assets and credits
 
