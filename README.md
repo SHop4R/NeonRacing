@@ -6,10 +6,15 @@ The car accelerates automatically. Your job is to choose a safe line, manage spe
 
 ![Panda AE86 with fixed raised headlights in the menu](docs/ae86-fixed-front.png)
 
-![Late-run gameplay and HUD](docs/review/sustained-run.png)
+## Gameplay video
+
+[![Watch SHUTOKO HIGHWAY gameplay](docs/media/gameplay-preview.jpg)](docs/media/shutoko-gameplay.webm)
+
+[Watch or download the gameplay recording](docs/media/shutoko-gameplay.webm) — the full 59-second recording, converted to WebM at 2048×1170 with its original aspect ratio. The supplied recording has no audio track, so this video is silent.
 
 ## Contents
 
+- [Gameplay video](#gameplay-video)
 - [Quick start](#quick-start)
 - [Controls](#controls)
 - [Your first run](#your-first-run)
