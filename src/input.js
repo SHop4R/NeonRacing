@@ -13,6 +13,7 @@ export function createInput(root, callbacks, environment={windowTarget:window,do
   const state=createControlState(), controller=new AbortController(), opts={signal:controller.signal};
   const used=['ArrowLeft','ArrowRight','ArrowDown','KeyA','KeyD','KeyS','Space','ShiftLeft','ShiftRight','KeyP','Escape','KeyR','Enter'];
   const onKey=(e,down)=>{
+    if(e.target?.closest?.('dialog[open]'))return;
     if(!used.includes(e.code))return;
     if(down&&e.repeat){e.preventDefault();return;}
     const control=e.target?.dataset?.control;

@@ -1,5 +1,6 @@
 import {launchFrame} from './launch.js';
 import {createTutorial,tutorialPrompts,TUTORIAL_KEY} from './tutorial.js';
+import {createRaceHistory} from './race-history.js';
 import {createPickupFeedback} from './pickup-feedback.js';
 import {createOncomingHud} from './oncoming-hud.js';
 import {createScoreFeedback} from './score-feedback.js';
@@ -8,6 +9,7 @@ import './style.css';
 import './typography.css';
 import './menu.css';
 import {createGame,startGame,stepGame} from './simulation.js';
+import {seedOpeningTraffic,paceOpeningTraffic} from './traffic.js';
 import {createScene} from './scene.js';
 import {createInput} from './input.js';
 import {createAudio} from './audio.js';
@@ -21,8 +23,10 @@ function saveTutorial(){try{localStorage.setItem(TUTORIAL_KEY,'yes');}catch{}}
 const oncomingHud=createOncomingHud($('oncoming-status'));
 const popup=document.createElement('div');popup.id='car-feedback';popup.hidden=true;popup.innerHTML='<span></span><strong></strong><small></small>';popup.setAttribute('role','status');$('game').append(popup);
 const gains=document.createElement('div');gains.id='pickup-feedback';gains.setAttribute('aria-hidden','true');$('game').append(gains);
-const pickupFeedback=createPickupFeedback(gains,()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
+const pickupFeedback=createPickupFeedback(gains,()=>matchMedia('(prefers-reduced-motion: reduce)').matches,$('score'));
 const scoreFeedback=createScoreFeedback(popup,()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
+const history=document.createElement('div');history.id='race-history';history.setAttribute('aria-hidden','true');document.querySelector('.shield-panel').prepend(history);
+const raceHistory=createRaceHistory(history,()=>matchMedia('(prefers-reduced-motion: reduce)').matches);
 const nitroFeedback=createNitroFeedback($('nitro-panel'),()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 let scene,best=0,hitUntil=0,last=0,accumulator=0,lastHud=0,lastMultiplier=0;
 try{best=Math.max(0,Number(localStorage.getItem('neon-racing-best'))||0);}catch{}
@@ -47,19 +51,19 @@ function setMode(mode) {
     $('restart').focus();$('live-message').textContent=`Run finished. Score ${Math.floor(game.score)}.`;
   }
 }
-function start(){if(!scene)return;tutorial.finish();$('tutorial').hidden=true;$('help').hidden=true;input.clear();oncomingHud.reset();pickupFeedback.reset();scoreFeedback.reset();nitroFeedback.reset();startGame(game);setMode('running');$('start').blur();$('restart').blur();hitUntil=0;accumulator=0;$('nitro-panel').getAnimations({subtree:true}).forEach(a=>a.cancel());$('live-message').textContent='Run started. Nitro charging.';}
+function start(keepTraffic=false){if(!scene)return;tutorial.finish();$('tutorial').hidden=true;$('help').hidden=true;input.clear();oncomingHud.reset();pickupFeedback.reset();raceHistory.reset();scoreFeedback.reset();nitroFeedback.reset();startGame(game,keepTraffic);if(!keepTraffic)seedOpeningTraffic(game);setMode('running');$('start').blur();$('restart').blur();hitUntil=0;accumulator=0;$('nitro-panel').getAnimations({subtree:true}).forEach(a=>a.cancel());$('live-message').textContent='Run started. Nitro charging.';}
 function beginPlay(forceTutorial=false){
  if(!scene||game.mode==='intro')return;
  const audioReady=audio.unlock();
  const retry=game.mode==='over'||game.mode==='paused';wantsTutorial=forceTutorial||!tutorialDone();
  appFocused=true;introInterrupted=false;input.clear();$('help').hidden=true;$('tutorial').hidden=true;tutorial.finish();
  introQuick=retry;introElapsed=0;
- startGame(game);Object.assign(game,launchFrame(0,introQuick));
+ startGame(game);seedOpeningTraffic(game);Object.assign(game,launchFrame(0,introQuick));paceOpeningTraffic(game);
  scene.beginIntro();setMode('intro');
  // Only the current ignition may start after resuming; never replay stale sounds.
  void audioReady.then(ready=>{if(ready&&game.mode==='intro'&&introElapsed<.15&&!introInterrupted)audio.ignition(introQuick);});
 }
-function finishTutorial(){tutorial.finish();saveTutorial();start();}
+function finishTutorial(){tutorial.finish();saveTutorial();start(true);}
 function openHelp(){
  if(game.mode==='intro')return;
  if(game.mode==='running')pause();
@@ -80,13 +84,34 @@ $('start').addEventListener('click',()=>beginPlay());$('restart').addEventListen
 $('how-menu').addEventListener('click',openHelp);$('how-pause').addEventListener('click',openHelp);
 $('close-help').addEventListener('click',closeHelp);
 $('replay-tutorial').addEventListener('click',()=>beginPlay(true));$('skip-tutorial').addEventListener('click',finishTutorial);
-function updateSoundButton(on){$('sound').setAttribute('aria-label',on?'Mute sound':'Enable sound');$('sound').querySelector('span').hidden=on;}
-updateSoundButton(audio.enabled);
-// User gestures unlock the browser without changing the saved sound preference.
+function updateSoundButton(){
+ const silent=!audio.enabled||['music','sfx'].every(name=>!audio.channel(name).enabled||audio.channel(name).volume===0);
+ $('sound').querySelector('span').hidden=!silent;
+ $('sound').setAttribute('aria-label',silent?'Audio settings, muted':'Audio settings');
+ $('master-mute').setAttribute('aria-pressed',String(!audio.enabled));$('master-mute').textContent=audio.enabled?'MUTE ALL':'UNMUTE ALL';
+ for(const name of ['music','sfx']){
+   const value=audio.channel(name),percent=Math.round(value.volume*100);
+   $(name+'-volume').value=percent;$(name+'-level').textContent=percent+'%';
+   $(name+'-mute').setAttribute('aria-pressed',String(!value.enabled));
+   $(name+'-mute').textContent=(value.enabled?'MUTE ':'UNMUTE ')+(name==='music'?'MUSIC':'EFFECTS');
+ }
+}
+updateSoundButton();
 window.addEventListener('pointerdown',()=>{void audio.unlock();},{capture:true});
 window.addEventListener('pointerup',()=>{void audio.unlock();},{capture:true});
 window.addEventListener('keydown',e=>{if(!e.repeat)void audio.unlock();},{capture:true});
-$('sound').addEventListener('click',async()=>{updateSoundButton(await audio.toggle());$('sound').blur();});
+$('sound').addEventListener('click',()=>{
+ if(game.mode==='intro')return;
+ if(game.mode==='running')pause();
+ input.clear();$('audio-settings').showModal();
+});
+$('master-mute').addEventListener('click',async()=>{await audio.toggle();updateSoundButton();});
+for(const name of ['music','sfx']){
+ $(name+'-volume').addEventListener('input',e=>{audio.setChannel(name,{volume:Number(e.target.value)/100});updateSoundButton();});
+ $(name+'-mute').addEventListener('click',()=>{audio.setChannel(name,{enabled:!audio.channel(name).enabled});updateSoundButton();});
+}
+$('close-audio').addEventListener('click',()=>$('audio-settings').close());
+$('audio-settings').addEventListener('close',()=>{input.clear();$('sound').focus();});
 try{scene=createScene($('world'));}catch(error){$('menu').hidden=true;$('dialog').hidden=false;$('dialog-title').textContent='3D UNAVAILABLE';$('dialog-copy').textContent='This browser could not start WebGL. Try a browser with hardware acceleration enabled.';$('dialog-kicker').textContent='RENDERER UNAVAILABLE';$('resume').hidden=true;$('restart').hidden=true;console.error(error);}
 setMode('ready');
 if(!scene){$('menu').hidden=true;$('dialog').hidden=false;$('start').disabled=true;}
@@ -118,11 +143,12 @@ function updateHud(now,day) {
 }
 function frame(timestamp) {
   const now=timestamp/1000,dt=Math.min(.1,now-(last||now));last=now;
-  if(game.mode==='intro'&&appFocused&&!document.hidden){if(game.introProgress>=1){const teach=wantsTutorial;start();if(teach)tutorial.begin(game);}else{introElapsed+=dt;Object.assign(game,launchFrame(introElapsed,introQuick));}}
-  if(game.mode==='running') {accumulator+=dt;while(accumulator>=1/120){const controls=input.read();game.tutorialSafe=tutorial.active;if(tutorial.active){game.entities=[];game.spawnTimer=1e6;}stepGame(game,controls,1/120);if(tutorial.active&&tutorial.update(game,controls,1/120)){finishTutorial();break;}accumulator-=1/120;if(game.mode==='over')break;}}else accumulator=0;
+  if(game.mode==='intro'&&appFocused&&!document.hidden){if(game.introProgress>=1){const teach=wantsTutorial;start(true);if(teach)tutorial.begin(game);}else{introElapsed+=dt;Object.assign(game,launchFrame(introElapsed,introQuick));paceOpeningTraffic(game);}}
+  if(game.mode==='running') {accumulator+=dt;while(accumulator>=1/120){const controls=input.read();game.tutorialSafe=tutorial.active;if(tutorial.active)game.spawnTimer=1e6;stepGame(game,controls,1/120);if(tutorial.active&&tutorial.update(game,controls,1/120)){finishTutorial();break;}accumulator-=1/120;if(game.mode==='over')break;}}else accumulator=0;
   for(const event of game.events.splice(0)) {
-    scene?.handleEvent(event,game);
-    if(event.type==='over'){setMode('over');continue;}
+    if(event.type==='horn'){audio.event('horn',event);continue;}
+    raceHistory.event(game,event);scene?.handleEvent(event,game);
+    if(event.type==='over'){audio.event('over');setMode('over');continue;}
     if(event.type==='nitro-ready'){
       if(!game.boost){nitroFeedback.ready(game);scoreFeedback.event(game,event);}
       $('live-message').textContent='Full power ready. Press nitro for automatic boost, shield and magnet.';
@@ -135,10 +161,22 @@ function frame(timestamp) {
     if(event.type==='hit')hitUntil=now+.3;
   }
   $('tutorial').hidden=!tutorial.active||game.mode!=='running';if(tutorial.active){$('tutorial-step').textContent=`${tutorial.step+1} / 5`;$('tutorial-prompt').textContent=tutorialPrompts(touch())[tutorial.step];}
-  oncomingHud.update(game);nitroFeedback.update(game);pickupFeedback.update(game,innerWidth,innerHeight);
+  if(oncomingHud.update(game))raceHistory.event(game,{type:'oncoming'});raceHistory.update(game);nitroFeedback.update(game);pickupFeedback.update(game,innerWidth,innerHeight);
   const day=scene?.render(game,now)||0;scoreFeedback.update(game,scene?.playerScreen()??{x:innerWidth/2,y:innerHeight*.7},innerWidth,innerHeight);if(now-lastHud>=1/30){updateHud(now,day);lastHud=now;}audio.update(game);requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 
 // Module exports let the development-only browser fixture exercise real UI wiring.
 export {game, input, scene, start, pause};
+
+// Expose the current run to supporting browsers without changing gameplay.
+if(document.modelContext?.registerTool){
+ const lifecycle=new AbortController();
+ window.addEventListener('pagehide',()=>lifecycle.abort(),{once:true});
+ try{Promise.resolve(document.modelContext.registerTool({
+  name:'read_race_status',description:'Read the current race mode, score, speed and shield.',
+  inputSchema:{type:'object',properties:{},additionalProperties:false},
+  annotations:{readOnlyHint:true},
+  execute(input){if(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).length)throw new Error('Expected an empty object.');return {mode:game.mode,score:Math.floor(game.score),speedKmh:game.mode==='ready'?0:Math.round(game.speed*3.6),shield:game.shield};}
+ },{signal:lifecycle.signal})).catch(()=>{});}catch{}
+}

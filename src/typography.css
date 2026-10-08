@@ -61,3 +61,10 @@ button,kbd{font-family:var(--font-ui);font-weight:var(--weight-ui)}
 
 .score-hud #oncoming-status{top:calc(100% + 12px);right:0;left:auto}
 @media(max-width:600px){.score-hud #oncoming-status{left:0;right:auto}}
+
+.shield-panel{position:relative}
+#race-history{position:absolute;bottom:calc(100% + 18px);left:0;width:260px;max-width:calc(100vw - 32px);display:grid;gap:5px;pointer-events:none}
+.race-reward{width:fit-content;max-width:100%;padding:5px 10px 5px 8px;border-left:2px solid #ffe28d;background:linear-gradient(90deg,#081321eb,#08132180);color:#fff2bb;font:italic 600 15px/1.15 var(--font-pickup);letter-spacing:-.4px;text-shadow:1px 1px #132b3e;font-variant-numeric:tabular-nums}
+#score{transform-origin:center}
+@media(max-width:600px){#race-history{width:225px;bottom:calc(100% + 12px);gap:4px}.race-reward{font-size:12px;padding:4px 7px}}
+@media(max-height:500px) and (min-width:601px){#race-history{width:220px;bottom:calc(100% + 10px)}.race-reward{font-size:12px}}

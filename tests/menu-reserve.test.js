@@ -6,7 +6,7 @@ import {createTutorial} from '../src/tutorial.js';
 const tick=(s,t,input={})=>{for(let i=0;i<Math.round(t*120);i++)stepGame(s,input,1/120);};
 const run=()=>{const s=createGame();startGame(s);s.spawnTimer=1e6;s.nitro=1;tick(s,.1,{boost:true});return s;};
 test('automatic orb banks without changing active fuel/time; overflow awards actual score',()=>{
- const s=run(),fuel=s.nitro,time=s.bonusTime;collectPickup(s,'nitro');assert.equal(s.nitroReserve,1);assert.equal(s.nitro,fuel);assert.equal(s.bonusTime,time);const score=s.score;collectPickup(s,'nitro');assert.equal(s.score-score,100);assert.equal(s.events.at(-1).resource,'score');
+ const s=run(),fuel=s.nitro,time=s.bonusTime;collectPickup(s,'nitro');assert.equal(s.nitroReserve,1);assert.equal(s.nitro,fuel);assert.equal(s.bonusTime,time);const score=s.score;collectPickup(s,'nitro');assert.ok(Math.abs(s.score-score-100)<1e-8);assert.equal(s.events.at(-1).scoreAmount,100);assert.equal(s.events.at(-1).amount,0);
  tick(s,6.9,{boost:true});assert.equal(s.boost,0);assert.equal(s.nitro,1);assert.equal(s.nitroReserve,0);tick(s,1,{boost:true});assert.equal(s.boost,0);tick(s,.1);tick(s,.1,{boost:true});assert.equal(s.boostMode,'auto');
 });
 test('cancellation applies bank immediately without reactivation; restart clears bank',()=>{

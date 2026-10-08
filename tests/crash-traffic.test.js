@@ -2,16 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createGame,startGame,stepGame} from '../src/simulation.js';
 import {stepTraffic,makeTraffic,LANES} from '../src/traffic.js';
-import {CRASH,TRAFFIC,EFFECTS} from '../src/tuning.js';
+import {CRASH,TRAFFIC,EFFECTS,DIFFICULTY} from '../src/tuning.js';
 import {advanceSign} from '../src/road-motion.js';
 const run=()=>{const s=createGame(()=>.1);startGame(s);s.spawnTimer=1e6;return s;};
 const tick=(s,seconds,input={})=>{for(let i=0;i<Math.round(seconds*120);i++)stepGame(s,input,1/120);};
 test('unshielded impact cancels boost, plays one sequence, respawns slower and clears nearby hazards',()=>{
- const s=run();s.nitro=.5;tick(s,.1,{boost:true});s.entities=[{id:1,kind:'traffic',x:s.x,z:1,speed:24},{id:2,kind:'traffic',x:s.x,z:2,speed:24},{id:3,kind:'traffic',x:4.5,z:90,speed:24}];
+ const s=run();s.distance=DIFFICULTY.rampDistance;s.speed=DIFFICULTY.maxSpeed;s.nitro=.5;tick(s,.1,{boost:true});s.entities=[{id:1,kind:'traffic',x:s.x,z:1,speed:24},{id:2,kind:'traffic',x:s.x,z:2,speed:24},{id:3,kind:'traffic',x:4.5,z:90,speed:24}];
  tick(s,1/120,{boost:true});assert.equal(s.shield,66);assert.equal(s.boost,0);assert.equal(s.crashTime,CRASH.duration);
  tick(s,.85);assert.equal(s.respawnId,1);assert.equal(s.events.filter(e=>e.type==='hit').length,1);assert.equal(s.speed,CRASH.respawnSpeed);assert.equal(s.recovery,CRASH.recoverySeconds);assert.equal(s.entities.some(e=>Math.abs(e.x-s.x)<2&&e.z<CRASH.clearAhead&&e.z> -CRASH.clearBehind),false);
  s.entities.push({id:4,kind:'traffic',x:s.x,z:0,speed:24});tick(s,1/120);assert.equal(s.shield,66);assert.equal(s.crashTime,0);assert.ok(s.events.some(e=>e.type==='shield-hit'));
- tick(s,1);assert.ok(s.speed>55);
+ tick(s,1);assert.ok(s.speed>DIFFICULTY.maxSpeed*.93);
 });
 test('full nitro shield absorbs impact without interrupting driving; restart clears all state',()=>{
  const s=run();s.nitro=1;tick(s,.1,{boost:true});s.entities=[{id:1,kind:'traffic',x:s.x,z:0,speed:24}];tick(s,1/120);assert.equal(s.shield,100);assert.equal(s.crashTime,0);assert.ok(s.shieldFlash>0);assert.equal(s.boostMode,'auto');

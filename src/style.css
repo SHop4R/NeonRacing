@@ -108,3 +108,11 @@ body.ready #nitro-fill::before,body.over #nitro-fill::before{animation:none}
 .nitro-panel[data-state=ready]{animation:nitro-ready-glow 1.3s ease-in-out infinite alternate}
 @media(max-width:600px){#car-feedback{font-size:28px;gap:8px}#car-feedback strong{font-size:42px}}
 @media(prefers-reduced-motion:reduce){.nitro-panel[data-state=ready]{animation:none;box-shadow:0 0 20px #70ffd960;border-color:#ffe79e}}
+
+#audio-settings{color:#eaf5ff;background:#08101df5;border:1px solid #79fff470;border-radius:4px;width:min(420px,calc(100vw - 32px));padding:26px;max-height:90dvh;overflow:auto;font-family:var(--font-ui)}
+#audio-settings::backdrop{background:#030511b0;backdrop-filter:blur(5px)}
+#audio-title{font-family:var(--font-display);font-size:32px;margin:0}
+#audio-settings .text-button{margin:10px 0 4px;min-height:40px}
+.audio-row{margin:24px 0;display:grid;gap:10px}.audio-row label{display:flex;justify-content:space-between;font-size:15px;font-weight:700}.audio-row output{color:var(--cyan);font-variant-numeric:tabular-nums}
+.audio-row input{width:100%;height:32px;margin:0;accent-color:var(--cyan);cursor:pointer}.audio-row button{min-height:40px;background:#142334;color:#eaf5ff;border:1px solid #547082;font-size:12px;letter-spacing:1px}.audio-row button[aria-pressed=true]{color:#ff90bd;border-color:#ff409b}
+#audio-settings .primary-button{width:100%;min-width:0;max-width:none;justify-content:center}

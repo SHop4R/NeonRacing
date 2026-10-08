@@ -9,29 +9,31 @@ import {chargeNitro,stopBoost,stepNitro,hasNitroBonus} from './nitro.js';
 export {LANES};export {activateBoost,hasNitroBonus} from './nitro.js';
 export const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 export function createGame(random=Math.random){return {random,mode:'ready',runId:0,respawnId:0,x:1.5,vx:0,
-  speed:DRIVING.initialSpeed,distance:0,time:0,score:0,shield:100,nitro:0,nitroReserve:0,boost:0,boostMode:'off',bonusTime:0,
+  speed:DRIVING.initialSpeed,distance:0,time:0,score:0,shield:100,nitro:0,nitroReserve:0,boost:0,boostMode:'off',bonusTime:0,boostScore:0,
   chargeDelay:0,boostWasHeld:false,boostLocked:false,nitroPress:false,crashTime:0,crashDirection:1,impactPosition:null,nitroGrace:0,collisionAssist:0,
   barrierContacts:[{touching:false},{touching:false}],barrierScrape:0,tutorialSafe:false,
   recovery:0,shieldFlash:0,combo:1,braking:false,deceleration:0,nextOrbTime:4,wave:0,
   laneChangeTimer:TRAFFIC.initialChangeDelay,oncoming:false,nextWaveDistance:0,nearMisses:0,pickups:0,spawnTimer:.1,nextId:1,entities:[],events:[]};}
-export function startGame(s){const runId=s.runId+1;Object.assign(s,createGame(s.random),{mode:'running',runId});}
+export function startGame(s,keepTraffic=false){
+  const retained=keepTraffic?{entities:s.entities,nextId:s.nextId,runId:s.runId,speed:s.speed}:{};
+  const runId=s.runId+1;Object.assign(s,createGame(s.random),{mode:'running',runId},retained);
+}
 export function collectPickup(s,kind,pickup=null){
   s.pickups++;
   const position={x:pickup?.x??s.x,y:kind==='nitro'?1.7:1.35,z:pickup?.z??0};
-  let amount=0;
+  const scoreAmount=PICKUPS.score*Math.floor(s.combo);s.score+=scoreAmount;
+  let amount=0,resource=kind;
   if(kind==='repair'){
     const before=s.shield;s.shield=Math.min(100,s.shield+25);amount=s.shield-before;
     if(before<100&&s.shield===100)s.events.push({type:'shield-full',text:'Shield Fully Restored'});
   }else if(kind==='nitro'){
     if(s.boostMode==='auto'&&s.boost>0){
-      const before=s.nitroReserve??0;s.nitroReserve=1;amount=(1-before)*100;
-      if(amount>0){s.events.push({type:'orb',pickup:true,resource:'reserve',amount,position});return;}
-      s.score+=100;s.events.push({type:'orb',pickup:true,resource:'score',amount:100,position});return;
+      const before=s.nitroReserve??0;s.nitroReserve=1;amount=(1-before)*100;resource='reserve';
+    }else{
+      const before=s.nitro;chargeNitro(s,1);amount=(s.nitro-before)*100;
     }
-    const before=s.nitro;chargeNitro(s,1);amount=(s.nitro-before)*100;
-  }
-  else{amount=100*Math.floor(s.combo);s.score+=amount;}
-  if(amount>0)s.events.push({type:kind==='nitro'?'orb':kind,pickup:true,resource:kind,amount,position});
+  }else amount=scoreAmount;
+  s.events.push({type:kind==='nitro'?'orb':kind,pickup:true,resource,amount,scoreAmount,position});
 }
 
 function spawn(s){
@@ -152,7 +154,7 @@ export function stepGame(s,input,dt){
       if(separated){e.graceContact=false;e.graceWidth=0;e.graceLength=0;e.expansionBounds=null;}
 
       const completed=e.passEntrySide>0?e.z< -passZ:e.passEntrySide<0?e.z>passZ:false;
-      if(completed&&!e.passed){e.passed=true;if(!e.contact&&!e.nearDisqualified&&s.crashTime===0&&e.closestGap<nearMissWidth(e)){const points=200*Math.floor(s.combo);s.score+=points;s.nearMisses++;s.combo=Math.min(5,s.combo+.3);s.events.push({type:'near',text:`NEAR MISS +${points}`,detail:'RISK REWARDED'});}}
+      if(completed&&!e.passed){e.passed=true;if(!e.contact&&!e.nearDisqualified&&s.crashTime===0&&e.closestGap<nearMissWidth(e)){const points=200*Math.floor(s.combo);s.score+=points;s.nearMisses++;s.combo=Math.min(5,s.combo+.3);s.events.push({type:'near',amount:points,text:`NEAR MISS +${points}`,detail:'RISK REWARDED'});}}
     }else {
       e.age=(e.age??0)+dt;e.laneX??=pickupLane(e.x);
       if(e.z>PICKUPS.maxAhead){e.dead=true;continue;}
@@ -162,6 +164,7 @@ export function stepGame(s,input,dt){
       if(canCollectPickup(e,oldZ,e.z,oldX,s.x,hasNitroBonus(s),oldPickupX)){collectPickup(s,e.kind,e);e.dead=true;}
     }
   }
-  s.entities=s.entities.filter(e=>e.z> -55&&e.z<1100&&!e.dead);
+  // Oncoming traffic can spawn farther out at high speed and always approaches.
+  s.entities=s.entities.filter(e=>e.z> -55&&(e.direction<0||e.z<1100)&&!e.dead);
   if(crashing){s.crashTime=Math.max(0,s.crashTime-dt);if(s.crashTime<1e-10){s.crashTime=0;respawn(s);}}
 }

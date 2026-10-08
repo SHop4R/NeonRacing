@@ -17,8 +17,8 @@ export function activateBoost(s,input={brake:s.braking}){
   if(s.boost>0||s.boostLocked)return false;
   if(s.nitro<=0){s.boostLocked=true;return false;}
   const full=s.nitro>=1;
-  s.boost=1;s.boostMode=full?'auto':'hold';s.bonusTime=full?NITRO.bonusSeconds:0;
-  s.events.push({type:'boost',text:full?'Shield + Magnet':'Nitro Boost'});return true;
+  s.boostScore=0;s.boost=1;s.boostMode=full?'auto':'hold';s.bonusTime=full?NITRO.bonusSeconds:0;
+  s.events.push({type:'boost',mode:s.boostMode,text:full?'Shield + Magnet':'Nitro Boost'});return true;
 }
 export function stepNitro(s,input,dt){
   const held=Boolean(input.boost),pressed=Boolean(input.boostPressed||s.nitroPress||(held&&!s.boostWasHeld));
@@ -32,6 +32,13 @@ export function stepNitro(s,input,dt){
     if(held&&!s.boost&&!s.boostLocked)activateBoost(s,input);
   }
   if(s.boost>0){
+    const full=s.boostMode==='auto',duration=full?NITRO.autoSeconds:NITRO.drainSeconds;
+    // Count only fuel-backed active time, including the final fractional frame.
+    const activeTime=Math.min(dt,s.nitro*duration,full?s.bonusTime:Infinity);
+    if(!s.tutorialSafe&&s.speed>0){
+      const points=activeTime*(full?NITRO.overdriveScorePerSecond:NITRO.scorePerSecond);
+      s.score+=points;s.boostScore+=points;
+    }
     s.nitro=Math.max(0,s.nitro-dt/(s.boostMode==='auto'?NITRO.autoSeconds:NITRO.drainSeconds));
     s.bonusTime=Math.max(0,s.bonusTime-dt);
     if(s.nitro<1e-10||(s.boostMode==='auto'&&s.bonusTime<1e-10)){if(s.boostMode==='auto')s.nitroGrace=NITRO.expiryGrace;s.nitro=0;stopBoost(s);s.boostLocked=held;}

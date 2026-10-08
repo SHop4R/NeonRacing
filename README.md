@@ -36,7 +36,7 @@ The car accelerates automatically. Your job is to choose a safe line, manage spe
 
 Use **Node.js 22.12 or newer** and npm. A modern browser with **WebGL2 and hardware acceleration** is required.
 
-From the project folder:
+The main project folder contains the current game source synchronized from the Site's v13 snapshot. Run the commands here:
 
 ```sh
 npm ci
@@ -48,6 +48,8 @@ Open the address printed by Vite, normally **http://localhost:5173/**. If that p
 For another device on the same trusted local network, use the computer's local IP address and the port printed by Vite. The development server listens on all network interfaces. Your firewall and network must allow the connection; this is a local testing setup, not a production hosting service.
 
 No account, backend, or external asset service is required. Models and effects are generated in the browser; fonts are bundled locally. Use the HTTP server rather than opening `index.html` directly from disk.
+
+A **LOADING** screen covers startup until the game module, fonts, and initial rendering are ready. If startup fails, reload when prompted.
 
 ## Controls
 
@@ -61,7 +63,7 @@ No account, backend, or external asset service is required. Models and effects a
 | Close instructions | **Escape** | **BACK** |
 | Start | **Enter** from the main menu, or activate **PLAY** | **PLAY** |
 | Retry after game over | **R**, **Enter**, or activate **RETRY** | **RETRY** |
-| Sound on / off | Tab to the sound button and activate it | Music-note button |
+| Audio settings | Tab to the sound button and activate it | Music-note button; separate music/effects volume and mute controls |
 
 Forward acceleration is automatic: there is no throttle key, gear shifting, or reverse control. Steering is continuous rather than a snap between lanes. Mouse steering is not implemented; desktop driving uses the keyboard.
 
@@ -71,9 +73,9 @@ Touch controls support simultaneous fingers, so you can steer while braking or b
 
 1. Select **PLAY**. The menu showcases the AE86 from several cinematic angles.
 2. Watch the ignition: a brief stationary hold, body shudder, and light dip, followed by a gradual moving camera pullback.
-3. Control begins after the camera settles and the car reaches its normal starting speed, approximately **223 km/h**. The introduction does not consume gameplay time, score, fuel, or recorded run distance.
+3. Control begins after the camera settles and the car reaches its normal starting speed, **140 km/h**. The introduction does not consume gameplay time, score, fuel, or recorded run distance.
 4. On your first run, follow five short tutorial steps: steer, brake, use partial nitro, enter the opposing lanes, then return to the right lanes.
-5. The tutorial removes traffic, protects the player from barrier damage, and supplies practice nitro. Finishing it starts a fresh scored run. **SKIP** also starts a fresh run and saves tutorial completion.
+5. A van and pickup remain ahead through the launch and tutorial, matching your speed to preserve their gaps. The tutorial suspends new traffic waves, protects the player from barrier damage, and supplies practice nitro. Finishing it or choosing **SKIP** resets score, distance, health, and fuel while retaining the opening traffic and current speed, and saves tutorial completion. The opening vehicles then ease toward their normal cruise speeds.
 
 Tutorial completion is stored locally. You can read the controls or replay the tutorial anytime through **HOW TO PLAY**, available from the main menu and the pause/game-over dialog. Replay does not require clearing saved data.
 
@@ -111,10 +113,11 @@ Every run starts with an **empty** nitro meter. Any positive fuel amount can be 
 | Release input | Stops the boost | Keeps the automatic boost running |
 | Fuel use | 10 percentage points per second | Full tank drains over **7 seconds** |
 | Shield and magnet | **No** | **Yes**, for the current automatic boost |
+| Extra score while moving | **25 per active second** | **75 per active second**, up to **525** over seven seconds |
 | Cancel | Release or brake | A fresh nitro press or brake |
 | Effects | Restrained flame/trail boost | Stronger burst, trails, flame, and spherical shield |
 
-Both modes target **1.42× the current cruise speed**. The car accelerates toward that target rather than instantly changing speed. The target is roughly **317 km/h** at the start of a run and **409 km/h** at maximum difficulty. Full boost's additional power is its protection, magnet, automatic duration, and stronger presentation—not a separate speed multiplier.
+Both modes target **1.42× the current cruise speed**. The car accelerates toward that target rather than instantly changing speed. The target is **198.8 km/h** at the start of a run and **568 km/h** at maximum difficulty. Full boost adds protection, magnet, automatic duration, a larger score bonus, and stronger presentation. Both modes use the same speed multiplier.
 
 ### Recharging and cancellation
 
@@ -137,9 +140,9 @@ During automatic full boost:
 3. The current boost, shield, and magnet still end within their original seven-second window.
 4. When the boost ends or is cancelled, the reserve is added to remaining fuel, capped at 100%, and the reserve clears.
 5. Another boost requires fresh input. It never chains automatically.
-6. Further nitro orbs collected while the reserve is already full award **100 score each**, without a combo multiplier.
+6. Every nitro orb also awards **100 × current integer combo** score, including orbs collected while the reserve is already full.
 
-There is only one tank and one full-boost reserve, not a stack of charges. An ordinary orb collected when the non-boosting tank is already full does not grant the reserve or overflow score.
+There is only one tank and one full-boost reserve, not a stack of charges. An orb collected when the non-boosting tank is already full still awards pickup score, but adds no fuel or reserve.
 
 The spherical shield warns during its final **two seconds**, then vanishes when protection ends. Reduced-motion mode uses a steady warning instead of pulsing. A separate, invisible **0.3-second collision grace** follows natural full-boost expiration; manual cancellation does not grant that grace.
 
@@ -148,8 +151,10 @@ The spherical shield warns during its final **two seconds**, then vanishes when 
 | Pickup | Appearance | Benefit |
 | --- | --- | --- |
 | Energy | Gold geometric orb | **100 × current integer combo** score per orb |
-| Repair | Pink cross | Up to **25 shield**, capped at 100 |
-| Nitro | Cyan orb | Fill fuel to 100%, or bank a refill during automatic full boost |
+| Repair | Pink cross | Up to **25 shield**, capped at 100, plus **100 × current integer combo** score |
+| Nitro | Cyan orb | Fill fuel to 100%, or bank a refill during automatic full boost, plus **100 × current integer combo** score |
+
+All pickup types award their score even when the corresponding resource is already full.
 
 Energy pickups normally appear in groups of three, **12 metres apart**. Repair and nitro pickups appear individually. Nitro has a **14% selection chance on an eligible spawn wave**, a **12-second spawn cooldown**, and at most one uncollected nitro orb on the road. That cooldown controls spawning, not the time between collections.
 
@@ -157,7 +162,7 @@ Pickups have forgiving lane-wide collection. Overlapping the pickup's lane while
 
 Orbs do not drive toward you. They stay fixed to the road, with local animation only, so braking gives you more time to reach one behind traffic. They spawn beyond the visible approach zone and fade in at distance. If an orb visually covers traffic, its glow and opacity reduce so vehicle silhouettes and signals remain readable.
 
-Gain text shows what was actually applied: for example, repairing from 92 to 100 displays **+8 Shield**. At combo ×3, one energy orb awards **+300 Energy**. Nearby rapid gains may combine. These small popups stay at their original screen position, hop upward, and fade; important status messages remain above the car.
+Gain text shows what was actually applied: for example, repairing from 92 to 100 displays **+8 Shield**, alongside its separate score award. At combo ×3, any pickup awards **+300 Score**. Nearby rapid gains may combine. Resource gains hop and fade near the collection position; score gains travel toward the score display and briefly highlight it. Reduced-motion mode keeps the gains stationary. Important status messages remain above the car.
 
 ## Shield, collisions, and recovery
 
@@ -192,11 +197,12 @@ Let **M** be the integer part of your current combo, from 1 to 5.
 | --- | --- |
 | Forward progress in normal lanes | **0.45 × metres travelled × M** |
 | Forward progress in opposing lanes | **0.9 × metres travelled × M** |
-| Energy orb | **100 × M** |
+| Any energy, repair, or nitro pickup | **100 × M** |
 | Completed clean near miss | **200 × M** |
-| Extra nitro orb with full banked reserve | **100**, fixed |
+| Partial nitro while moving | **25 per active second**, fixed |
+| Full nitro while moving | **75 per active second**, fixed; **525** for a full seven-second boost |
 
-The oncoming bonus multiplies forward-progress score only. It does not multiply recorded distance, energy pickups, near misses, or reserve-overflow score. Displayed score is rounded down; the simulation retains fractional progress score.
+The oncoming bonus multiplies forward-progress score only. It does not multiply recorded distance, pickup awards, near misses, or nitro bonuses. Nitro bonuses also ignore combo, count only fuel-backed active time while moving, and do not accrue during tutorial practice. Displayed score is rounded down; the simulation retains fractional score.
 
 The combo grows by **0.055 per active second while not crashing**, capped at ×5. A completed near miss adds **0.3** to combo. The near-miss award uses the integer combo **before** that increase. Taking damage resets combo to 1. Without near misses, each integer increase takes about **18.2 seconds**.
 
@@ -208,22 +214,22 @@ The personal best is saved when a run ends, if browser storage is available.
 
 Traffic uses six separate vehicle classes. Their silhouettes, lighting, dimensions, speed ranges, acceleration, and lane-change tendencies differ. The player AE86 does not share its model or materials with traffic.
 
-Speeds below are rounded cruise ranges. Vehicles may slow below them to follow other traffic.
+Speeds below are normal cruise ranges. Vehicles may slow below them to follow other traffic. The opening van and pickup initially match the player's speed, then transition toward these ranges after practice or launch.
 
 | Class | Cruise speed | Width × length | Nominal lane-change crossing |
 | --- | --- | --- | --- |
-| Truck | 65–86 km/h | 2.35 × 7.4 m | 2.6 s |
-| Van | 79–104 km/h | 2.05 × 5.1 m | 2.2 s |
-| Pickup | 90–119 km/h | 2.05 × 4.8 m | 1.8 s |
-| Sedan | 97–130 km/h | 1.85 × 4.4 m | 1.65 s |
-| Hatchback | 108–140 km/h | 1.75 × 3.5 m | 1.45 s |
-| Motorcycle | 151–187 km/h | 0.75 × 2.25 m | 1.3 s |
+| Truck | 60–75 km/h | 2.35 × 7.4 m | 2.6 s |
+| Van | 65–85 km/h | 2.05 × 5.1 m | 2.2 s |
+| Pickup | 75–95 km/h | 2.05 × 4.8 m | 1.8 s |
+| Sedan | 80–100 km/h | 1.85 × 4.4 m | 1.65 s |
+| Hatchback | 90–110 km/h | 1.75 × 3.5 m | 1.45 s |
+| Motorcycle | 115–130 km/h | 0.75 × 2.25 m | 1.3 s |
 
 Motorcycles have the highest cruise range and acceleration. Trucks and vans are slower and less likely to change lanes. Crossing duration varies slightly around the nominal values.
 
 Traffic signals amber at **1.25 flashes per second**, with a clear off interval, for **2.4 seconds** before changing lanes. Signals continue through the maneuver. Destination clearance is checked in advance; unsafe maneuvers can be cancelled. Only one maneuver is active at a time, and vehicles never change across the center line.
 
-An oncoming vehicle detecting you in its path gives a short white-headlight warning burst. This is different from its amber turn signal and is not a promise that it will avoid you.
+An oncoming vehicle detecting you in its path flashes its white headlights, sounds a horn, and brakes toward 75% of its cruise speed. Warnings repeat while the hazard remains. Its amber turn signal still indicates a lane change; neither warning guarantees that it will avoid you.
 
 ### Distance progression
 
@@ -231,15 +237,15 @@ Difficulty follows a smooth curve over the first **8 km**, then caps. It is base
 
 | Distance | Cruise target | Wave spacing | Chance to attempt a third vehicle in a wave |
 | --- | --- | --- | --- |
-| 0 km | 223.2 km/h | 150 m | 45% |
-| 2 km | 233.3 km/h | 136.7 m | 52.3% |
-| 4 km | 255.6 km/h | 107.5 m | 68.5% |
-| 6 km | 277.9 km/h | 78.3 m | 84.7% |
-| 8 km and beyond | 288 km/h | 65 m | 92% |
+| 0 km | 140 km/h | 150 m | 45% |
+| 2 km | 180.6 km/h | 136.7 m | 52.3% |
+| 4 km | 270 km/h | 107.5 m | 68.5% |
+| 6 km | 359.4 km/h | 78.3 m | 84.7% |
+| 8 km and beyond | 400 km/h | 65 m | 92% |
 
 Each wave attempts vehicles in both directions and may attempt an additional vehicle. Clearance and escape checks can reject spawns, so these values are **not guaranteed population counts**. Traffic is capped at **48 active vehicles**.
 
-Spawns are at least **320 metres ahead**, with additional lead distance for closing speed and oncoming maneuvers. The baseline reaction allowance is **3.2 seconds**. Encounter checks reserve escape opportunities at current and maximum boost pace. This reduces unfair patterns but is not an exhaustive guarantee for every random situation or player input.
+Regular traffic waves spawn at least **320 metres ahead**, with additional lead distance for closing speed and oncoming maneuvers. The opening van and pickup begin closer, around **80 and 140 metres**, with gaps preserved during launch and practice. The baseline reaction allowance is **3.2 seconds**. Encounter checks reserve escape opportunities at current and maximum boost pace. This reduces unfair patterns but is not an exhaustive guarantee for every random situation or player input.
 
 ## Reading the HUD
 
@@ -251,9 +257,9 @@ Spawns are at least **320 metres ahead**, with additional lead distance for clos
 - **BOOST / OVERDRIVE:** partial boost or full boost with bonuses. The full-boost hint shows actual remaining protection time.
 - **BANKED:** stored refill for after the current automatic boost; it does not extend active protection.
 - **Score and combo:** current run score, personal best, integer multiplier, and progress toward the next multiplier.
-- **ONCOMING TRAFFIC ×2:** a fixed HUD indicator while driving in opposing lanes. A short display delay prevents center-line flicker; scoring follows actual position.
+- **Race history:** up to three short entries above the shield record near misses, combo increases, and **ONCOMING TRAFFIC ×2** when entering opposing lanes. **NITRO / OVERDRIVE +…** tracks the current boost's earned bonus, then lingers briefly after it ends. A short oncoming-entry delay prevents center-line flicker; scoring follows actual position.
 - **Above-car feedback:** concise major events such as near misses, full nitro, crashes, and recovery. Related events are combined or prioritized instead of forming a long queue.
-- **Pickup feedback:** smaller, independent gain amounts at the pickup's screen position.
+- **Pickup feedback:** separate resource gains near the pickup and score gains that travel to the score display.
 
 The day/night ambience completes a **90-second gameplay-time cycle**. It is visual ambience, not an additional weather or handling system.
 
@@ -261,7 +267,9 @@ The day/night ambience completes a **90-second gameplay-time cycle**. It is visu
 
 **PLAY** is the primary menu action. **HOW TO PLAY** stays available before a run and from pause/game over. Help can be closed with **BACK** or **Escape**; keyboard focus returns to its opening button. Closing help from pause does not resume driving automatically.
 
-Sound is enabled by default. The menu opens automatically and silently; the first keyboard or pointer interaction (including PLAY) unlocks browser audio. The music-note button mutes or enables synthesized starter, engine, pickup, boost, near-miss, and impact sounds. Mute and saved volume preferences survive reloads. Browser autoplay blocking never changes the sound preference, and missed sound effects are not replayed. There is no music soundtrack or separate volume mixer.
+Sound is enabled by default. The menu opens silently until a keyboard or pointer interaction (including PLAY) unlocks browser audio. An original **112 BPM synthwave loop** accompanies the menu and driving, with reduced music volume during ignition. Synthesized effects cover the starter, engine, braking, horns, pickups, boost, near misses, impacts, and recovery. Music stops while paused, after game over, or while the page is hidden.
+
+The music-note button opens **AUDIO**, with independent music and sound-effects volume sliders, channel mute buttons, and **MUTE ALL**. Opening it during a run pauses driving; closing it leaves the run paused until you resume. Preferences survive reloads. Browser autoplay blocking never changes the sound preference, and missed sound effects are not replayed.
 
 The game respects the browser/OS **reduced-motion** preference: cinematic motion and body movement are reduced, shield-expiry feedback becomes steady, and decorative HUD motion is reduced. This does not stop road motion or change gameplay rules. Menus support keyboard navigation, controls have accessible labels, and some events have live announcements; the visual driving game is not fully playable nonvisually.
 
@@ -271,8 +279,9 @@ Local browser storage contains:
 | --- | --- |
 | `neon-racing-best` | Best completed-run score |
 | `shutoko-tutorial-complete` | Whether onboarding has been completed or skipped |
+| `shutoko-audio` | Master audio preference and separate music/effects volume and mute settings |
 
-Progress is specific to the browser and origin. Different hostnames or ports may have different saved data. There is no cloud save, account sync, online leaderboard, multiplayer, or saved in-progress run. Storage restrictions may prevent persistence; the game can still run. Clearing site data removes the saved best and tutorial flag.
+Progress is specific to the browser and origin. Different hostnames or ports may have different saved data. There is no cloud save, account sync, online leaderboard, multiplayer, or saved in-progress run. Storage restrictions may prevent persistence; the game can still run. Clearing site data removes the saved best, tutorial flag, and audio preferences.
 
 ## Tips
 
@@ -306,7 +315,7 @@ Publish the contents of `dist/` with a static web host. The current configuratio
 | Blank scene or “3D UNAVAILABLE” | Use a WebGL2-capable browser with hardware acceleration. Update the browser/GPU driver if needed. |
 | Page fails when opened from disk | Run Vite and use its HTTP URL instead of `file://`. |
 | Phone cannot reach the local server | Check the computer's local IP, printed port, shared network, and firewall. `localhost` on the phone points to the phone itself. |
-| No sound | PLAY enables sound unless explicitly muted. Check the note button and browser/device audio settings. |
+| No sound | Interact with the page to unlock audio. Open the note button and check master mute, channel mute, and volume sliders, then browser/device audio settings. |
 | Nitro will not engage | Check fuel, braking, crash state, and whether you need to release a depleted/cancelled hold before pressing again. |
 | Nitro orb did not lengthen the shield | Intended: automatic-boost pickups bank the next refill. Current shield/magnet never extend beyond the original window. |
 | Game paused after changing tabs | Intended focus-loss protection. Return and choose Resume. |
@@ -367,6 +376,7 @@ These rules are implemented in [`collision-bounds.js`](src/collision-bounds.js),
 
 | File / area | Responsibility |
 | --- | --- |
+| `src/startup.js` | Loading cover, font readiness, and startup failure message |
 | `src/main.js` | Main loop, menu flow, HUD wiring, local storage |
 | `src/simulation.js` | Run state, scoring, spawning, collision outcomes, recovery |
 | `src/tuning.js` | Central gameplay and visual limits |
@@ -382,22 +392,27 @@ These rules are implemented in [`collision-bounds.js`](src/collision-bounds.js),
 | `src/pickup-visibility.js` | Pickup distance fade and traffic-priority visibility |
 | `src/road-motion.js` / `src/environment-motion.js` | Signs and environment recycling |
 | `src/hud.js` / `src/score-feedback.js` | Nitro readiness and vehicle-anchored messages |
-| `src/pickup-feedback.js` / `src/oncoming-hud.js` | Independent gains and stable opposing-lane indicator |
+| `src/pickup-feedback.js` / `src/oncoming-hud.js` | Resource/score gains and opposing-lane entry detection |
+| `src/race-history.js` | Short reward history and cumulative active-boost score |
 | `src/tutorial.js` / `src/input.js` | Onboarding and keyboard/pointer state |
-| `src/audio.js` | Synthesized engine, ignition, and event sounds |
+| `src/audio.js` | Synthwave music, engine/ignition/event sounds, and saved channel mix |
 | `src/style.css`, `src/typography.css`, `src/menu.css` | Layout, fonts, feedback styling, responsive dialogs |
 | `tests/` | Automated tests and browser fixtures |
 | `docs/` | Current screenshots, original design, and final review evidence |
 
 ## Current status and limitations
 
-The latest final-polish review recorded **140 passing automated tests** and a successful production build. The browser review included a **159-second, 9.2 km test-driver run** past the difficulty cap and three separate **240-second seeded simulation runs**. Later traffic became measurably denser. Desktop browser samples reported roughly **119–120 FPS**, with stable geometry/texture counts after warm-up.
+The synchronized v13 source passes **165 automated tests** and a production build. A local browser smoke check covered the menu, audio mixer, first-run tutorial and skip, and normal driving. This synchronization did not include a new mobile or audio listening assessment.
+
+A known late-run traffic pacing bug remains: at maximum difficulty, the spawn safety filter can leave the same lane clear for long stretches; this v13 synchronization does not include the proposed spawn fix.
+
+The historical **2026-10-06** final-polish review recorded **140 passing automated tests** and a successful production build before the later Site changes documented above. Its browser review included a **159-second, 9.2 km test-driver run** past the difficulty cap and three separate **240-second seeded simulation runs**. Later traffic became measurably denser in those runs. Desktop browser samples reported roughly **119–120 FPS**, with stable geometry/texture counts after warm-up. These figures describe that earlier version, not a fresh performance assessment of the synchronized source.
 
 Those observations are not a guarantee of performance on every device or proof that every random traffic pattern is fair. The sustained run used a test driver, not an independent human player. Portrait **390×844**, landscape **844×390**, and desktop **1440×900** layouts were inspected; physical-phone GPU performance, touch ergonomics, audio quality, and thermal behavior still need device testing.
 
 The game is ready to share as a **desktop-first playable beta**. Remaining limitations include repeated straight-road scenery/encounters, small distant traffic in portrait framing, relatively simple traffic/environment art, and no audio listening assessment in the recorded review. No additional feature is required to try the current game.
 
-See the [full assessment and verification evidence](docs/review/notes.md). The original design in `docs/game-design.md` is historical; superseded iteration notes and screenshots have been removed. This guide describes the current implementation; source remains authoritative when tuning changes.
+See the [historical assessment and verification evidence](docs/review/notes.md). The original design in `docs/game-design.md` is also historical; superseded iteration notes and screenshots have been removed. This guide describes the current implementation; source remains authoritative when tuning changes.
 
 ## Assets and credits
 

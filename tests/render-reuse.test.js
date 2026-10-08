@@ -9,7 +9,7 @@ import {createGame,startGame} from '../src/simulation.js';
 import {createDrivingEffects} from '../src/scene-effects.js';
 test('bounded prewarmed traffic pools reuse and reset transforms, signal and warning state',()=>{
  const pool=createVisualPool(()=>createTrafficModel('sedan'),{sedan:2});pool.prewarm('sedan',2);
- for(let i=0;i<50;i++){const m=pool.acquire('sedan');updateTrafficModel(m,{direction:-1,change:{from:0,to:1,phase:'moving'}},true,true);m.position.set(3,2,1);m.scale.setScalar(3);pool.release('sedan',m);assert.deepEqual(m.position.toArray(),[0,0,0]);assert.deepEqual(m.scale.toArray(),[1,1,1]);assert.equal(m.userData.body.rotation.y,0);assert.ok(m.userData.signals.every(s=>!s.visible));assert.equal(m.userData.lights[0].scale.y,.17);}
+ for(let i=0;i<50;i++){const m=pool.acquire('sedan');updateTrafficModel(m,{direction:-1,change:{from:0,to:1,phase:'moving'}},true,true);m.position.set(3,2,1);m.scale.setScalar(3);pool.release('sedan',m);assert.deepEqual(m.position.toArray(),[0,0,0]);assert.deepEqual(m.scale.toArray(),[1,1,1]);assert.equal(m.userData.body.rotation.y,0);assert.equal(m.userData.wheels.rotation.y,0);assert.ok(m.userData.signals.every(s=>!s.visible));assert.equal(m.userData.lights[0].scale.y,.17);}
  assert.equal(pool.inspect().created,2);const a=pool.acquire('sedan'),b=pool.acquire('sedan');assert.throws(()=>pool.acquire('sedan'));pool.release('sedan',a);pool.release('sedan',b);
 });
 test('spatial instancing preserves transforms and supplies bounded culling volumes',()=>{
